@@ -1,0 +1,41 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { chromium } from "playwright";
+import { signIn } from "./helpers.mjs";
+import { selectOption } from "../helpers/select.mjs";
+
+const baseURL = process.env.SHELL_BASE_URL ?? "http://localhost:3000";
+test("CHIRPS: pengambilan otomatis, status parsial, read-only dan kembali ke manual", { timeout: 120_000 }, async (t) => {
+  const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } : {}) });
+  t.after(() => browser.close());
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  let calls = 0;
+  await page.route("**/api/v1/rainfall/chirps?**", async (route) => {
+    calls++;
+    const url = new URL(route.request().url()), end = url.searchParams.get("date_to");
+    assert.equal(url.searchParams.get("area_id"), "batanghari");
+    const dates = Array.from({ length: 7 }, (_, i) => { const day = new Date(`${end}T00:00:00Z`); day.setUTCDate(day.getUTCDate()+i-6); return day.toISOString().slice(0,10); });
+    await route.fulfill({ json: { status: "PARTIAL", dataset_id: "UCSB-CHG/CHIRPS/DAILY", provider: "CLIMATESERV", scope: "REGIONAL_DEMO_BBOX", area_id: "batanghari", area_label: "Batanghari", bbox: [102.9,-2.2,104,-1.3], resolution_degrees: 0.05, statistic: "MEAN_VALID_CELLS", date_from: dates[0], date_to: end, retrieved_at: new Date().toISOString(), days: dates.map((date, i) => ({ date, rainfall_mm: i === 6 ? null : i, valid_cells: null, source_url: "https://climateserv.servirglobal.net/api/getDataFromRequest/" })), note: "Fixture: estimasi regional, satu tanggal belum tersedia" } });
+  });
+  await signIn(page, baseURL, "coordinator", "/experiments/ml");
+  const panel = page.getByRole("region", { name: "Penilaian dari pengukuran lapangan" });
+  await selectOption(panel.getByRole("combobox", { name: "Sumber curah hujan" }), "CHIRPS");
+  await panel.getByText(/CHIRPS sebagian tersedia/).waitFor();
+  const rain = panel.getByRole("spinbutton", { name: /^Hujan / });
+  assert.equal(await rain.first().getAttribute("readonly"), "");
+  assert.equal(await rain.first().inputValue(), "0");
+  assert.equal(await rain.last().inputValue(), "", "hari belum tersedia tetap kosong");
+  assert.ok(calls >= 1);
+  await panel.getByRole("button", { name: "Periksa CHIRPS lagi" }).click();
+  await panel.getByText(/CHIRPS sebagian tersedia/).waitFor();
+  assert.ok(calls >= 2);
+  await page.setViewportSize({ width: 320, height: 900 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  await selectOption(panel.getByRole("combobox", { name: "Sumber curah hujan" }), "MANUAL");
+  assert.equal(await rain.first().getAttribute("readonly"), null);
+  assert.equal(await rain.first().inputValue(), "", "hasil CHIRPS tidak disalin menjadi pengukuran manual");
+  await rain.first().fill("4");
+  assert.equal(await rain.first().inputValue(), "4");
+  assert.deepEqual(errors, []);
+});

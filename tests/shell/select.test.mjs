@@ -1,0 +1,92 @@
+import { signIn } from "./helpers.mjs";
+import assert from "node:assert/strict";
+import { mkdir } from "node:fs/promises";
+import test from "node:test";
+import { chromium } from "playwright";
+import { selectOption } from "../helpers/select.mjs";
+
+// Exercise visible dropdowns, including nested modal/popover cases.
+test("select: keyboard, kelompok stasiun, opsi kosong, formulir dialog dan mobile", { timeout: 120_000 }, async (t) => {
+  const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } : {}) });
+  t.after(() => browser.close());
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  page.setDefaultTimeout(12_000);
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  const screenshots = process.env.UI_SCREENSHOT_DIR;
+  if (screenshots) await mkdir(screenshots, { recursive: true });
+  await signIn(page, process.env.SHELL_BASE_URL ?? "http://127.0.0.1:3000", "coordinator", "/groundwater");
+  await page.getByRole("heading", { name: "Grafik muka air tanah harian" }).waitFor();
+  const area = page.getByRole("combobox", { name: "Wilayah", exact: true });
+  await area.focus();
+  await page.keyboard.press("ArrowDown");
+  await page.getByRole("listbox").waitFor();
+  await page.waitForFunction(() => document.activeElement?.getAttribute("role") === "option");
+  await page.keyboard.press("End");
+  await page.waitForFunction(() => document.activeElement?.getAttribute("data-value") === "kubu-raya");
+  await page.keyboard.press("Enter");
+  assert.equal(await area.getAttribute("data-value"), "kubu-raya");
+  await area.click();
+  await page.waitForFunction(() => document.activeElement?.getAttribute("role") === "option");
+  await page.keyboard.press("Home");
+  await page.waitForFunction(() => document.activeElement?.getAttribute("data-value") === "");
+  await page.keyboard.press("Enter");
+  assert.equal(await area.getAttribute("data-value"), "", "opsi Semua wilayah memulihkan null");
+  assert.equal(await area.evaluate((el) => el === document.activeElement), true);
+  await area.click();
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Escape");
+  assert.equal(await area.getAttribute("data-value"), "", "Escape tidak mengubah nilai");
+
+  const station = page.getByRole("combobox", { name: "Stasiun pengukuran" });
+  await station.click();
+  const menu = page.getByRole("listbox");
+  await menu.getByText("Batanghari", { exact: true }).waitFor();
+  await menu.getByText(/^Data s.d./).first().waitFor();
+  if (screenshots) await page.screenshot({ path: `${screenshots}/select-station-1440.png` });
+  await menu.getByRole("option", { name: "BRG3", exact: true }).click();
+  await page.waitForURL("**/groundwater?stasiun=BRG3");
+  assert.equal(await station.getAttribute("data-value"), "BRG3");
+
+  for (const width of [768, 375, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await area.click();
+    const box = await page.getByRole("listbox").boundingBox();
+    assert.ok(box.x >= 0 && box.x + box.width <= width, `menu muat ${width}px`);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    if (screenshots && width === 320) await page.screenshot({ path: `${screenshots}/select-area-320.png` });
+    await page.keyboard.press("Escape");
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.locator("aside").getByRole("link", { name: "Prioritas pemeriksaan", exact: true }).click();
+  await page.locator("main article").first().getByRole("button", { name: /^Buat tugas/ }).click();
+  const form = page.getByRole("dialog", { name: "Buat tugas pemeriksaan" });
+  const title = `Select QA ${Date.now()}`;
+  await form.getByLabel("Judul tugas").fill(title);
+  await selectOption(form.getByRole("combobox", { name: "Prioritas", exact: true }), "MEDIUM");
+  const officer = form.getByRole("combobox", { name: "Petugas", exact: true });
+  await selectOption(officer, "");
+  assert.equal(await officer.getAttribute("data-value"), "");
+  await page.setViewportSize({ width: 320, height: 900 });
+  await officer.click();
+  await page.getByRole("listbox").waitFor();
+  if (screenshots) await page.screenshot({ path: `${screenshots}/select-dialog-320.png` });
+  await page.keyboard.press("Escape");
+  await form.waitFor();
+  assert.equal(await form.getByRole("combobox", { name: "Prioritas", exact: true }).getAttribute("data-value"), "MEDIUM");
+  await form.getByRole("button", { name: "Buat tugas", exact: true }).click();
+  await form.waitFor({ state: "hidden" });
+  await page.getByRole("button", { name: "Buka tugas", exact: true }).click();
+  const detail = page.locator('section[aria-labelledby="task-detail-title"]');
+  await detail.getByRole("heading", { name: title, exact: true }).waitFor();
+  await detail.getByText("Prioritas sedang", { exact: true }).waitFor();
+  await detail.getByRole("heading", { name: "Tugaskan petugas", exact: true }).waitFor();
+  await selectOption(detail.getByRole("combobox", { name: "Petugas", exact: true }), { label: /petugas/i });
+  await detail.getByRole("button", { name: "Tugaskan", exact: true }).click();
+  await detail.locator('[data-slot="badge"]').first().filter({ hasText: "Ditugaskan" }).waitFor();
+  await page.reload();
+  await detail.getByRole("heading", { name: title, exact: true }).waitFor();
+  await detail.locator('[data-slot="badge"]').first().filter({ hasText: "Ditugaskan" }).waitFor();
+  assert.deepEqual(errors, []);
+});

@@ -1,0 +1,58 @@
+{
+  "name": "gambutops-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "predev": "node scripts/copy-maplibre-worker.mjs",
+    "dev": "next dev --webpack",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:shell": "node --test --test-isolation=none tests/shell/*.test.mjs",
+    "test:live": "node --test --test-isolation=none tests/integration/*.test.mjs tests/shell/workflow.test.mjs",
+    "test:data": "node --import tsx --test tests/data/*.test.ts"
+  },
+  "dependencies": {
+    "@gsap/react": "2.1.2",
+    "@hookform/resolvers": "5.4.0",
+    "@radix-ui/react-dialog": "1.3.1",
+    "@radix-ui/react-popover": "1.3.1",
+    "@radix-ui/react-select": "2.4.1",
+    "@radix-ui/react-slot": "1.1.2",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "date-fns": "4.4.0",
+    "gsap": "3.15.0",
+    "lucide-react": "1.24.0",
+    "maplibre-gl": "6.11.2",
+    "motion": "12.43.0",
+    "next": "16.2.10",
+    "react": "19.2.4",
+    "react-day-picker": "9.14.0",
+    "react-dom": "19.2.4",
+    "react-hook-form": "7.81.0",
+    "recharts": "3.9.2",
+    "sonner": "2.0.7",
+    "tailwind-merge": "3.6.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.2",
+    "@types/node": "20.19.43",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.10",
+    "playwright": "1.62.1",
+    "postcss": "8.5.17",
+    "tailwindcss": "4.3.2",
+    "tsx": "4.23.15",
+    "tw-animate-css": "1.4.0",
+    "typescript": "5.9.3"
+  }
+}

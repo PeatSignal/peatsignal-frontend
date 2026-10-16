@@ -1,0 +1,58 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { readFile } from "node:fs/promises";
+import { chromium } from "playwright";
+import { signIn } from "./helpers.mjs";
+import { selectOption } from "../helpers/select.mjs";
+
+const baseURL = process.env.SHELL_BASE_URL ?? "http://localhost:3000";
+test("GWT lapangan: demo kering/pulih, hujan opsional, ekspor dan provenance manual", { timeout: 120_000 }, async (t) => {
+  const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } : {}) });
+  t.after(() => browser.close());
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+  await signIn(page, baseURL, "coordinator", "/experiments/ml");
+  const workbench = page.getByRole("region", { name: "Penilaian dari pengukuran lapangan" });
+  const result = page.getByRole("region", { name: "Hasil penilaian lapangan" });
+  const submit = workbench.getByRole("button", { name: "Hitung prediksi & rekomendasi" });
+  await workbench.getByRole("button", { name: "Contoh kering", exact: true }).click();
+  await submit.click();
+  await result.getByText("Prioritas tinggi", { exact: true }).waitFor();
+  await result.getByText("DEMO · SIMULASI", { exact: true }).waitFor();
+  await result.locator("summary").filter({ hasText: "Alasan rekomendasi" }).click();
+  await result.getByText(/Curah hujan 7 hari 0/).waitFor();
+  await result.getByRole("figure", { name: "Grafik pengukuran dan prediksi lapangan" }).waitFor();
+  const downloadEvent = page.waitForEvent("download");
+  await result.getByRole("button", { name: "Unduh ringkasan" }).click();
+  const download = await downloadEvent;
+  const exported = JSON.parse(await readFile(await download.path(), "utf8"));
+  assert.equal(exported.result.is_simulation, true);
+  assert.equal(exported.input_snapshot.readings.length, 7);
+  assert.equal(exported.input_snapshot.readings[6].gwt_m, -0.52);
+  assert.equal(exported.result.prevention.forecast_used, false);
+  for (const width of [768, 375, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `overflow ${width}px`);
+  }
+  await workbench.getByRole("button", { name: "Contoh pulih", exact: true }).click();
+  assert.equal(await result.count(), 0, "hasil lama hilang saat input berubah");
+  await submit.click();
+  await result.getByText("Pemantauan rutin", { exact: true }).waitFor();
+  await workbench.getByRole("button", { name: "Tanpa data hujan", exact: true }).click();
+  await submit.click();
+  await result.getByText(/Data belum lengkap: Curah hujan/).waitFor();
+  assert.equal(await result.getByText(/Curah hujan 7 hari 0/).count(), 0);
+  await selectOption(workbench.getByRole("combobox", { name: "Sumber input" }), "MANUAL");
+  assert.equal(await result.count(), 0);
+  await selectOption(workbench.getByRole("combobox", { name: "Sumber curah hujan" }), "MANUAL");
+  const fields = workbench.getByRole("spinbutton", { name: /^GWT / });
+  for (let i = 0; i < 7; i++) assert.equal(await fields.nth(i).inputValue(), "", "demo dibersihkan saat beralih ke pengukuran manual");
+  for (let i = 0; i < 7; i++) await fields.nth(i).fill(String(-30-i*3));
+  await workbench.getByLabel("Catatan sumber pengukuran").fill("Pengukuran untuk uji browser, tidak disimpan ke observasi");
+  await submit.click();
+  await result.getByText("INPUT MANUAL · BELUM DIVERIFIKASI", { exact: true }).waitFor();
+  assert.equal(await result.getByText("DEMO · SIMULASI", { exact: true }).count(), 0);
+  await page.goto(`${baseURL}/priorities`);
+  await workbench.waitFor();
+  assert.deepEqual(errors, []);
+});

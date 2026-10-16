@@ -1,0 +1,516 @@
+{
+  "artifact_file": "gwt-rf-brg3-ab2fb9e8574d.joblib",
+  "baseline_mae_cm": 1.3386666666666667,
+  "baseline_rmse_cm": 3.329144034132497,
+  "beats_baseline": false,
+  "features": [
+    "lag_1_m",
+    "lag_3_m",
+    "lag_7_m",
+    "rolling_mean_3_shifted_m",
+    "rolling_mean_7_shifted_m",
+    "delta_1_m",
+    "delta_3_m",
+    "delta_7_m"
+  ],
+  "label": "HASIL EKSPERIMEN HISTORIS",
+  "limitations": [
+    "Data GWT hanya historis 2018-2019 dan bukan kondisi 2026.",
+    "Baris dengan missing, duplikat, atau lag kalender tidak lengkap dikeluarkan.",
+    "Model tidak digunakan oleh decision engine jika tidak mengalahkan baseline."
+  ],
+  "mae_cm": 2.444212286680943,
+  "model_version": "gwt-rf-brg3-ab2fb9e8574d",
+  "predictions": [
+    {
+      "actual_gwt_m": -0.901,
+      "baseline_gwt_m": -0.894,
+      "date": "2019-06-14",
+      "predicted_gwt_m": -0.8938518486438582
+    },
+    {
+      "actual_gwt_m": -0.91,
+      "baseline_gwt_m": -0.901,
+      "date": "2019-06-15",
+      "predicted_gwt_m": -0.9037876710878486
+    },
+    {
+      "actual_gwt_m": -0.918,
+      "baseline_gwt_m": -0.91,
+      "date": "2019-06-16",
+      "predicted_gwt_m": -0.9136672008058037
+    },
+    {
+      "actual_gwt_m": -0.927,
+      "baseline_gwt_m": -0.918,
+      "date": "2019-06-17",
+      "predicted_gwt_m": -0.9223542321253202
+    },
+    {
+      "actual_gwt_m": -0.937,
+      "baseline_gwt_m": -0.927,
+      "date": "2019-06-18",
+      "predicted_gwt_m": -0.929345709316595
+    },
+    {
+      "actual_gwt_m": -0.948,
+      "baseline_gwt_m": -0.937,
+      "date": "2019-06-19",
+      "predicted_gwt_m": -0.9385460708194288
+    },
+    {
+      "actual_gwt_m": -0.957,
+      "baseline_gwt_m": -0.948,
+      "date": "2019-06-20",
+      "predicted_gwt_m": -0.9473802920069294
+    },
+    {
+      "actual_gwt_m": -0.965,
+      "baseline_gwt_m": -0.957,
+      "date": "2019-06-21",
+      "predicted_gwt_m": -0.9552787117210735
+    },
+    {
+      "actual_gwt_m": -0.969,
+      "baseline_gwt_m": -0.965,
+      "date": "2019-06-22",
+      "predicted_gwt_m": -0.9649993074823241
+    },
+    {
+      "actual_gwt_m": -0.86,
+      "baseline_gwt_m": -0.969,
+      "date": "2019-06-23",
+      "predicted_gwt_m": -0.9635634940972435
+    },
+    {
+      "actual_gwt_m": -0.88,
+      "baseline_gwt_m": -0.86,
+      "date": "2019-06-24",
+      "predicted_gwt_m": -0.8428529754665259
+    },
+    {
+      "actual_gwt_m": -0.905,
+      "baseline_gwt_m": -0.88,
+      "date": "2019-06-25",
+      "predicted_gwt_m": -0.8796594502750653
+    },
+    {
+      "actual_gwt_m": -0.922,
+      "baseline_gwt_m": -0.905,
+      "date": "2019-06-26",
+      "predicted_gwt_m": -0.9128362870889972
+    },
+    {
+      "actual_gwt_m": -0.941,
+      "baseline_gwt_m": -0.922,
+      "date": "2019-06-27",
+      "predicted_gwt_m": -0.9271287096380775
+    },
+    {
+      "actual_gwt_m": -0.953,
+      "baseline_gwt_m": -0.941,
+      "date": "2019-06-28",
+      "predicted_gwt_m": -0.9462418703194014
+    },
+    {
+      "actual_gwt_m": -0.967,
+      "baseline_gwt_m": -0.953,
+      "date": "2019-06-29",
+      "predicted_gwt_m": -0.9524078771118947
+    },
+    {
+      "actual_gwt_m": -0.974,
+      "baseline_gwt_m": -0.967,
+      "date": "2019-06-30",
+      "predicted_gwt_m": -0.9702342122855182
+    },
+    {
+      "actual_gwt_m": -0.988,
+      "baseline_gwt_m": -0.974,
+      "date": "2019-07-01",
+      "predicted_gwt_m": -0.9764260940546045
+    },
+    {
+      "actual_gwt_m": -1.003,
+      "baseline_gwt_m": -0.988,
+      "date": "2019-07-02",
+      "predicted_gwt_m": -0.9942237733909878
+    },
+    {
+      "actual_gwt_m": -1.014,
+      "baseline_gwt_m": -1.003,
+      "date": "2019-07-03",
+      "predicted_gwt_m": -1.0129376438901245
+    },
+    {
+      "actual_gwt_m": -1.023,
+      "baseline_gwt_m": -1.014,
+      "date": "2019-07-04",
+      "predicted_gwt_m": -1.0222581399047945
+    },
+    {
+      "actual_gwt_m": -1.034,
+      "baseline_gwt_m": -1.023,
+      "date": "2019-07-05",
+      "predicted_gwt_m": -1.028736526349622
+    },
+    {
+      "actual_gwt_m": -1.05,
+      "baseline_gwt_m": -1.034,
+      "date": "2019-07-06",
+      "predicted_gwt_m": -1.042309841484486
+    },
+    {
+      "actual_gwt_m": -1.065,
+      "baseline_gwt_m": -1.05,
+      "date": "2019-07-07",
+      "predicted_gwt_m": -1.0616069974961146
+    },
+    {
+      "actual_gwt_m": -1.067,
+      "baseline_gwt_m": -1.065,
+      "date": "2019-07-08",
+      "predicted_gwt_m": -1.076749529396198
+    },
+    {
+      "actual_gwt_m": -1.078,
+      "baseline_gwt_m": -1.067,
+      "date": "2019-07-09",
+      "predicted_gwt_m": -1.048002040709196
+    },
+    {
+      "actual_gwt_m": -1.332,
+      "baseline_gwt_m": -1.078,
+      "date": "2019-07-10",
+      "predicted_gwt_m": -1.0822110469099724
+    },
+    {
+      "actual_gwt_m": -1.339,
+      "baseline_gwt_m": -1.332,
+      "date": "2019-07-11",
+      "predicted_gwt_m": -1.3345260267400663
+    },
+    {
+      "actual_gwt_m": -1.35,
+      "baseline_gwt_m": -1.339,
+      "date": "2019-07-12",
+      "predicted_gwt_m": -1.333483316267059
+    },
+    {
+      "actual_gwt_m": -1.35,
+      "baseline_gwt_m": -1.35,
+      "date": "2019-07-13",
+      "predicted_gwt_m": -1.3334065023833057
+    },
+    {
+      "actual_gwt_m": -1.365,
+      "baseline_gwt_m": -1.35,
+      "date": "2019-07-14",
+      "predicted_gwt_m": -1.3158764619871444
+    },
+    {
+      "actual_gwt_m": -1.372,
+      "baseline_gwt_m": -1.365,
+      "date": "2019-07-15",
+      "predicted_gwt_m": -1.3511914523521216
+    },
+    {
+      "actual_gwt_m": -1.379,
+      "baseline_gwt_m": -1.372,
+      "date": "2019-07-16",
+      "predicted_gwt_m": -1.3550066008746335
+    },
+    {
+      "actual_gwt_m": -1.386,
+      "baseline_gwt_m": -1.379,
+      "date": "2019-07-17",
+      "predicted_gwt_m": -1.3601137579239473
+    },
+    {
+      "actual_gwt_m": -1.393,
+      "baseline_gwt_m": -1.386,
+      "date": "2019-07-18",
+      "predicted_gwt_m": -1.3671137579239472
+    },
+    {
+      "actual_gwt_m": -1.401,
+      "baseline_gwt_m": -1.393,
+      "date": "2019-07-19",
+      "predicted_gwt_m": -1.3739989249554432
+    },
+    {
+      "actual_gwt_m": -1.408,
+      "baseline_gwt_m": -1.401,
+      "date": "2019-07-20",
+      "predicted_gwt_m": -1.3822740570608554
+    },
+    {
+      "actual_gwt_m": -1.415,
+      "baseline_gwt_m": -1.408,
+      "date": "2019-07-21",
+      "predicted_gwt_m": -1.3891933766962121
+    },
+    {
+      "actual_gwt_m": -1.422,
+      "baseline_gwt_m": -1.415,
+      "date": "2019-07-22",
+      "predicted_gwt_m": -1.3959989249554432
+    },
+    {
+      "actual_gwt_m": -1.429,
+      "baseline_gwt_m": -1.422,
+      "date": "2019-07-23",
+      "predicted_gwt_m": -1.402998924955443
+    },
+    {
+      "actual_gwt_m": -1.436,
+      "baseline_gwt_m": -1.429,
+      "date": "2019-07-24",
+      "predicted_gwt_m": -1.4099989249554432
+    },
+    {
+      "actual_gwt_m": -1.444,
+      "baseline_gwt_m": -1.436,
+      "date": "2019-07-25",
+      "predicted_gwt_m": -1.416998924955443
+    },
+    {
+      "actual_gwt_m": -1.451,
+      "baseline_gwt_m": -1.444,
+      "date": "2019-07-26",
+      "predicted_gwt_m": -1.4250919431450138
+    },
+    {
+      "actual_gwt_m": -1.458,
+      "baseline_gwt_m": -1.451,
+      "date": "2019-07-27",
+      "predicted_gwt_m": -1.4321933766962123
+    },
+    {
+      "actual_gwt_m": -1.465,
+      "baseline_gwt_m": -1.458,
+      "date": "2019-07-28",
+      "predicted_gwt_m": -1.4389989249554431
+    },
+    {
+      "actual_gwt_m": -1.472,
+      "baseline_gwt_m": -1.465,
+      "date": "2019-07-29",
+      "predicted_gwt_m": -1.4459989249554432
+    },
+    {
+      "actual_gwt_m": -1.479,
+      "baseline_gwt_m": -1.472,
+      "date": "2019-07-30",
+      "predicted_gwt_m": -1.4529989249554431
+    },
+    {
+      "actual_gwt_m": -1.487,
+      "baseline_gwt_m": -1.479,
+      "date": "2019-07-31",
+      "predicted_gwt_m": -1.4599989249554433
+    },
+    {
+      "actual_gwt_m": -1.494,
+      "baseline_gwt_m": -1.487,
+      "date": "2019-08-01",
+      "predicted_gwt_m": -1.468091943145014
+    },
+    {
+      "actual_gwt_m": -1.501,
+      "baseline_gwt_m": -1.494,
+      "date": "2019-08-02",
+      "predicted_gwt_m": -1.4751933766962122
+    },
+    {
+      "actual_gwt_m": -1.508,
+      "baseline_gwt_m": -1.501,
+      "date": "2019-08-03",
+      "predicted_gwt_m": -1.481998924955443
+    },
+    {
+      "actual_gwt_m": -1.515,
+      "baseline_gwt_m": -1.508,
+      "date": "2019-08-04",
+      "predicted_gwt_m": -1.4889989249554432
+    },
+    {
+      "actual_gwt_m": -1.522,
+      "baseline_gwt_m": -1.515,
+      "date": "2019-08-05",
+      "predicted_gwt_m": -1.495998924955443
+    },
+    {
+      "actual_gwt_m": -1.53,
+      "baseline_gwt_m": -1.522,
+      "date": "2019-08-06",
+      "predicted_gwt_m": -1.5029989249554432
+    },
+    {
+      "actual_gwt_m": -1.537,
+      "baseline_gwt_m": -1.53,
+      "date": "2019-08-07",
+      "predicted_gwt_m": -1.5110919431450138
+    },
+    {
+      "actual_gwt_m": -1.544,
+      "baseline_gwt_m": -1.537,
+      "date": "2019-08-08",
+      "predicted_gwt_m": -1.5181933766962121
+    },
+    {
+      "actual_gwt_m": -1.551,
+      "baseline_gwt_m": -1.544,
+      "date": "2019-08-09",
+      "predicted_gwt_m": -1.5249989249554432
+    },
+    {
+      "actual_gwt_m": -1.558,
+      "baseline_gwt_m": -1.551,
+      "date": "2019-08-10",
+      "predicted_gwt_m": -1.531998924955443
+    },
+    {
+      "actual_gwt_m": -1.565,
+      "baseline_gwt_m": -1.558,
+      "date": "2019-08-11",
+      "predicted_gwt_m": -1.5389989249554432
+    },
+    {
+      "actual_gwt_m": -1.573,
+      "baseline_gwt_m": -1.565,
+      "date": "2019-08-12",
+      "predicted_gwt_m": -1.545998924955443
+    },
+    {
+      "actual_gwt_m": -1.58,
+      "baseline_gwt_m": -1.573,
+      "date": "2019-08-13",
+      "predicted_gwt_m": -1.5540919431450138
+    },
+    {
+      "actual_gwt_m": -1.587,
+      "baseline_gwt_m": -1.58,
+      "date": "2019-08-14",
+      "predicted_gwt_m": -1.5611933766962123
+    },
+    {
+      "actual_gwt_m": -1.594,
+      "baseline_gwt_m": -1.587,
+      "date": "2019-08-15",
+      "predicted_gwt_m": -1.5679989249554431
+    },
+    {
+      "actual_gwt_m": -1.601,
+      "baseline_gwt_m": -1.594,
+      "date": "2019-08-16",
+      "predicted_gwt_m": -1.5749989249554432
+    },
+    {
+      "actual_gwt_m": -1.608,
+      "baseline_gwt_m": -1.601,
+      "date": "2019-08-17",
+      "predicted_gwt_m": -1.5819989249554431
+    },
+    {
+      "actual_gwt_m": -1.616,
+      "baseline_gwt_m": -1.608,
+      "date": "2019-08-18",
+      "predicted_gwt_m": -1.5889989249554433
+    },
+    {
+      "actual_gwt_m": -1.623,
+      "baseline_gwt_m": -1.616,
+      "date": "2019-08-19",
+      "predicted_gwt_m": -1.597091943145014
+    },
+    {
+      "actual_gwt_m": -1.63,
+      "baseline_gwt_m": -1.623,
+      "date": "2019-08-20",
+      "predicted_gwt_m": -1.6041933766962122
+    },
+    {
+      "actual_gwt_m": -1.637,
+      "baseline_gwt_m": -1.63,
+      "date": "2019-08-21",
+      "predicted_gwt_m": -1.610998924955443
+    },
+    {
+      "actual_gwt_m": -1.644,
+      "baseline_gwt_m": -1.637,
+      "date": "2019-08-22",
+      "predicted_gwt_m": -1.6179989249554432
+    },
+    {
+      "actual_gwt_m": -1.651,
+      "baseline_gwt_m": -1.644,
+      "date": "2019-08-23",
+      "predicted_gwt_m": -1.624998924955443
+    },
+    {
+      "actual_gwt_m": -1.659,
+      "baseline_gwt_m": -1.651,
+      "date": "2019-08-24",
+      "predicted_gwt_m": -1.6319989249554432
+    },
+    {
+      "actual_gwt_m": -1.666,
+      "baseline_gwt_m": -1.659,
+      "date": "2019-08-25",
+      "predicted_gwt_m": -1.6400919431450138
+    },
+    {
+      "actual_gwt_m": -1.673,
+      "baseline_gwt_m": -1.666,
+      "date": "2019-08-26",
+      "predicted_gwt_m": -1.6471933766962121
+    },
+    {
+      "actual_gwt_m": -1.68,
+      "baseline_gwt_m": -1.673,
+      "date": "2019-08-27",
+      "predicted_gwt_m": -1.6539989249554432
+    }
+  ],
+  "release_gate": "EXPERIMENT_ONLY",
+  "rmse_cm": 3.831584891245668,
+  "selected_parameters": {
+    "max_features": 0.8,
+    "min_samples_leaf": 10,
+    "n_estimators": 300,
+    "random_state": 2026
+  },
+  "source_sha256": "fe3fd7dd964fc1b4adc6a9696c5693fc9496a6fc574a8266dafa93dc0503aa1b",
+  "station_code": "BRG3",
+  "test_from": "2019-06-14",
+  "test_size": 75,
+  "test_to": "2019-08-27",
+  "train_size": 350,
+  "trained_at": "2026-10-15T03:55:15.357772+00:00",
+  "training_from": "2018-04-15",
+  "training_to": "2019-06-13",
+  "validation_candidates": [
+    {
+      "mae_cm": 2.583792152316819,
+      "min_samples_leaf": 2,
+      "rmse_cm": 4.2706701306997426
+    },
+    {
+      "mae_cm": 2.472864013081727,
+      "min_samples_leaf": 5,
+      "rmse_cm": 4.136446424196945
+    },
+    {
+      "mae_cm": 2.413370985833365,
+      "min_samples_leaf": 10,
+      "rmse_cm": 4.163414503024266
+    },
+    {
+      "mae_cm": 2.4717017464322986,
+      "min_samples_leaf": 20,
+      "rmse_cm": 4.3027096036670365
+    }
+  ],
+  "validation_size": 75
+}
