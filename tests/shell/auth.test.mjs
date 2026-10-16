@@ -29,11 +29,19 @@ test("login: wajib masuk, kembali ke tujuan, next aman, sesi bertahan, keluar", 
   // Masuk sebagai petugas → kembali ke halaman tujuan terakhir.
   await chooseAccount(page, "field_officer");
   await page.waitForURL((url) => url.pathname === "/experiments/ml");
+  await page.getByRole("button", { name: /^Buka profil \(Petugas/ }).waitFor();
+
+  assert.equal(await page.getByRole("button", { name: /^Keluar/ }).count(), 0, "logout tersembunyi sebelum profil dibuka");
+  const profile = page.getByRole("button", { name: /^Buka profil/ });
+  await profile.click();
   await page.getByRole("button", { name: /^Keluar \(Petugas/ }).waitFor();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /^Keluar/ }).waitFor({ state: "hidden" });
+  assert.equal(await profile.evaluate((element) => element === document.activeElement), true, "fokus kembali ke profil");
 
   // Sesi bertahan setelah reload; membuka /login saat sudah masuk langsung diteruskan.
   await page.reload();
-  await page.getByRole("button", { name: /^Keluar \(Petugas/ }).waitFor();
+  await page.getByRole("button", { name: /^Buka profil \(Petugas/ }).waitFor();
   await page.goto(`${baseURL}/login?next=/tasks`);
   await page.waitForURL((url) => url.pathname === "/tasks");
 

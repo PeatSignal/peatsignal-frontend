@@ -22,8 +22,11 @@ export async function chooseAccount(page, role) {
   await page.getByRole("button", { name: /^Masuk sebagai / }).click();
 }
 
-/** Keluar dari header aplikasi; kembali ke login dengan tujuan halaman saat ini. */
+/** Keluar lewat profil di header aplikasi; kembali ke login dengan tujuan halaman saat ini. */
 export async function signOut(page) {
+  if (!await page.getByRole("button", { name: /^Keluar/ }).isVisible()) {
+    await page.getByRole("button", { name: /^Buka profil/ }).click();
+  }
   await page.getByRole("button", { name: /^Keluar/ }).click();
   await page.waitForURL((url) => url.pathname.startsWith("/login"));
 }

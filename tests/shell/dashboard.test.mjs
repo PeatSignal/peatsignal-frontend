@@ -27,7 +27,7 @@ test("ringkasan: kartu perhatian, angka, peta, kegiatan, dan peran demo", { time
   await page.getByRole("heading", { name: "Ringkasan pemantauan", level: 1 }).waitFor();
   await main.getByRole("heading", { name: "Perlu diperiksa lebih dulu" }).waitFor();
   await main.getByRole("heading", { name: "Tugas yang menunggu Anda" }).waitFor();
-  await page.getByRole("button", { name: /^Keluar/ }).waitFor();
+  await page.getByRole("button", { name: /^Buka profil/ }).waitFor();
 
   // Empat angka ringkasan, masing-masing menuju halamannya.
   const tiles = page.getByLabel("Angka ringkasan").getByRole("link");

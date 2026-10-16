@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronRight, CircleHelp, Menu } from "lucide-react";
+import { CircleHelp, Menu } from "lucide-react";
 import { findNavigationItem } from "./navigation";
 import { SidebarContent } from "./sidebar";
 import { ModeSwitcher } from "./mode-switcher";
@@ -26,23 +26,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SidebarContent pathname={pathname} compact={compact} onToggle={() => setCompact(!compact)} />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex min-h-20 flex-wrap items-center gap-x-4 gap-y-3 border-b bg-card px-4 py-4 md:px-8">
+        <header className="flex min-h-16 flex-wrap items-center gap-x-3 gap-y-2 border-b bg-card px-4 py-3 md:px-8">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild><Button variant="outline" size="icon" className="lg:hidden" aria-label="Buka navigasi"><Menu aria-hidden="true" /></Button></SheetTrigger>
+            <SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label="Buka navigasi"><Menu aria-hidden="true" /></Button></SheetTrigger>
             <SheetContent>
               <SheetTitle className="sr-only">Navigasi PeatSignal</SheetTitle>
               <SheetDescription className="sr-only">Pilih modul pemantauan atau eksperimen.</SheetDescription>
               <SidebarContent pathname={pathname} onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground">
-            <span className="hidden sm:inline">{active?.experimental ? "Eksperimen" : "PeatSignal"}</span>
-            <ChevronRight className="hidden size-3.5 sm:block" aria-hidden="true" />
-            <span className="truncate font-medium text-foreground">{active?.label ?? "PeatSignal"}</span>
-          </div>
-          <Button variant="outline" onClick={() => openGuide()} aria-label="Buka panduan penggunaan" className="px-3 sm:px-4"><CircleHelp aria-hidden="true" /><span className="hidden sm:inline">Panduan</span></Button>
+          <div className="min-w-0 flex-1 truncate text-sm font-medium">{active?.label ?? "PeatSignal"}</div>
+          <div className="order-last w-full sm:order-none sm:w-auto"><ModeSwitcher /></div>
+          <Button variant="ghost" size="icon" onClick={() => openGuide()} aria-label="Buka panduan penggunaan" title="Panduan penggunaan"><CircleHelp aria-hidden="true" /></Button>
           <AccountMenu />
-          <div className="w-full sm:w-auto"><ModeSwitcher /></div>
         </header>
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 px-4 py-7 outline-none md:px-8 md:py-9">
           <div className="mx-auto max-w-[1280px]">{children}</div>

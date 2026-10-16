@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback } from "react";
-import { History, Satellite } from "lucide-react";
 import { toast } from "sonner";
 import { useMonitoring, type MonitoringMode } from "@/components/providers/monitoring-context";
 import { modeDescriptions, modeLabels } from "@/lib/domain/labels";
@@ -22,17 +21,17 @@ export function ModeSwitcher() {
   const changeMode = useSwitchMode();
 
   return (
-    <div role="group" aria-label="Jenis data" className="flex w-full rounded-lg border bg-muted/60 p-1 sm:inline-flex sm:w-auto">
+    <div role="group" aria-label="Jenis data" className="flex w-full rounded-lg bg-muted/60 p-1 sm:inline-flex sm:w-auto">
       {([
-        ["HISTORICAL_REPLAY", "Riwayat", History],
-        ["CURRENT_MONITORING", "Terkini", Satellite],
-      ] as const).map(([value, label, Icon]) => (
+        ["HISTORICAL_REPLAY", "Riwayat"],
+        ["CURRENT_MONITORING", "Terkini"],
+      ] as const).map(([value, label]) => (
         <button
           key={value} type="button" aria-pressed={mode === value}
           title={modeDescriptions[value]} onClick={() => changeMode(value)}
-          className={cn("flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-none", mode === value ? "bg-card text-primary" : "text-muted-foreground hover:text-foreground")}
+          className={cn("flex min-h-8 flex-1 items-center justify-center rounded-md px-3 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-none", mode === value ? "bg-card text-primary" : "text-muted-foreground hover:text-foreground")}
         >
-          <Icon className="size-4 shrink-0" aria-hidden="true" />{label}
+          {label}
         </button>
       ))}
     </div>
