@@ -2,6 +2,7 @@ import type { FieldReport, GroundwaterObservation, Hotspot, InspectionTask, Moni
 import { ASSESSMENT_BLOCKS } from "@/lib/domain/areas";
 import { addDays, daysBetween, parseIsoDate } from "@/lib/domain/dates";
 import { createPrng, hashSeed, round } from "./prng";
+import { COMMUNITY_ACCOUNT } from "@/lib/auth/community-account";
 
 // Seluruh nilai observasi pada file ini SINTETIS (DEMO). Hanya metadata stasiun
 // (ID, wilayah, periode) yang mengikuti mmc1.xlsx; nilai GWT dan hotspot dibangkitkan.
@@ -40,6 +41,7 @@ export const USERS: readonly User[] = [
   { id: "u-coord-1", role: "coordinator", display_name: "Koordinator Demo" },
   { id: "u-field-1", role: "field_officer", display_name: "Petugas Lapangan A" },
   { id: "u-field-2", role: "field_officer", display_name: "Petugas Lapangan B" },
+  COMMUNITY_ACCOUNT,
 ];
 
 /** 0..1, puncak kemarau sekitar pertengahan September. */

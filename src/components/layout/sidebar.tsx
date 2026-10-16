@@ -3,19 +3,21 @@
 import Link from "next/link";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Brand } from "./brand";
-import { navigation } from "./navigation";
+import { navigation, communityNavigation } from "./navigation";
+import { useActor } from "@/components/providers/actor-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui/utils";
 
 export function SidebarContent({ pathname, compact = false, onNavigate, onToggle }: {
   pathname: string; compact?: boolean; onNavigate?: () => void; onToggle?: () => void;
 }) {
+  const { actor } = useActor();
   return (
     <>
       <div className={cn("flex h-20 shrink-0 items-center px-6", compact && "px-0")}><Brand compact={compact} onNavigate={onNavigate} /></div>
       <div className={cn("flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-3", compact && "px-3")}>
         <nav aria-label="Navigasi utama" className="space-y-1.5">
-          {navigation.map((item) => {
+          {(actor?.role === "community" ? [communityNavigation] : navigation).map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const Icon = item.icon;
             return (

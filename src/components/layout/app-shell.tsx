@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useGuide } from "@/components/guide/guide-provider";
 import { cn } from "@/components/ui/utils";
+import { useActor } from "@/components/providers/actor-context";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { actor } = useActor();
+  const community = actor?.role === "community";
   const pathname = usePathname();
   const active = findNavigationItem(pathname);
   const [compact, setCompact] = useState(false);
@@ -36,8 +39,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             </SheetContent>
           </Sheet>
           <div className="min-w-0 flex-1 truncate text-sm font-medium">{active?.label ?? "PeatSignal"}</div>
-          <div className="order-last w-full sm:order-none sm:w-auto"><ModeSwitcher /></div>
-          <Button variant="ghost" size="icon" onClick={() => openGuide()} aria-label="Buka panduan penggunaan" title="Panduan penggunaan"><CircleHelp aria-hidden="true" /></Button>
+          {!community && <div className="order-last w-full sm:order-none sm:w-auto"><ModeSwitcher /></div>}
+          {community ? <Button asChild variant="ghost" size="sm"><a href="#panduan-warga">Panduan</a></Button> : <Button variant="ghost" size="icon" onClick={() => openGuide()} aria-label="Buka panduan penggunaan" title="Panduan penggunaan"><CircleHelp aria-hidden="true" /></Button>}
           <AccountMenu />
         </header>
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 px-4 py-7 outline-none md:px-8 md:py-9">

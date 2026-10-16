@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
 import { clearSession, useSession } from "@/lib/auth/session";
+import { COMMUNITY_ACCOUNT } from "@/lib/auth/community-account";
 import type { User } from "@/types";
 import { useUsers } from "./data-hooks";
 
@@ -20,13 +21,15 @@ const ActorContext = createContext<ActorContextValue | null>(null);
  * identitas final tetap ditentukan server dari token tersebut.
  */
 export function ActorProvider({ children }: { children: ReactNode }) {
-  const users = useUsers();
   const session = useSession();
-  const list = useMemo(() => users.data ?? [], [users.data]);
+  const community = session?.user.role === "community";
+  const users = useUsers(!!session && !community);
+  const list = useMemo(() => community ? [COMMUNITY_ACCOUNT] : users.data ?? [], [community, users.data]);
   const actor = session?.user ?? null;
   const signOut = useCallback(() => clearSession(), []);
 
-  const value = useMemo(() => ({ actor, users: list, usersStatus: users.status, signOut }), [actor, list, users.status, signOut]);
+  const usersStatus = community ? "success" as const : users.status;
+  const value = useMemo(() => ({ actor, users: list, usersStatus, signOut }), [actor, list, usersStatus, signOut]);
   return <ActorContext.Provider value={value}>{children}</ActorContext.Provider>;
 }
 

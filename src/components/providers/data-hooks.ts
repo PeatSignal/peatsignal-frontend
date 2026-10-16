@@ -14,8 +14,8 @@ export function useAreas() {
   return useRepositoryQuery(["areas"], (repo, signal) => repo.listAreas({ signal }));
 }
 
-export function useUsers() {
-  return useRepositoryQuery(["users"], (repo, signal) => repo.listUsers({ signal }));
+export function useUsers(enabled = true) {
+  return useRepositoryQuery(enabled ? ["users"] : null, (repo, signal) => repo.listUsers({ signal }));
 }
 
 export function useStations() {

@@ -56,5 +56,13 @@ export const navigation: readonly NavigationItem[] = [
 ];
 
 export function findNavigationItem(pathname: string) {
+  if (pathname === "/masyarakat") return communityNavigation;
   return navigation.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
 }
+
+export const communityNavigation: NavigationItem = {
+  href: "/masyarakat", label: "Ruang masyarakat", title: "Pantau hutan, jaga kehidupan",
+  eyebrow: "MASYARAKAT", phase: "community", available: true, icon: LayoutDashboard,
+  description: "Pantau peringatan dan laporkan kejadian di sekitar Anda.",
+  capabilities: ["Memantau indikasi panas dan perubahan tutupan lahan", "Membaca peringatan", "Mengirim laporan simulasi"],
+};

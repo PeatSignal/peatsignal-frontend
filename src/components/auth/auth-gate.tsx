@@ -20,7 +20,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
     router.replace(`/login?next=${encodeURIComponent(next)}`);
   }, [pathname, router, session]);
 
-  if (!session) {
+  const wrongRole = !!session && (session.user.role === "community" ? pathname !== "/masyarakat" : pathname === "/masyarakat");
+  useEffect(() => {
+    if (wrongRole && session) router.replace(session.user.role === "community" ? "/masyarakat" : "/dashboard");
+  }, [wrongRole, session, router]);
+
+  if (!session || wrongRole) {
     return <SessionSplash redirecting={session === null} />;
   }
   return children;

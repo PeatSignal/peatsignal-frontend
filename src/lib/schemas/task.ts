@@ -2,7 +2,7 @@ import { z } from "zod";
 import { isoDateTimeSchema, monitoringModeSchema } from "./common";
 import { priorityLevelSchema } from "./priority";
 
-export const userRoleSchema = z.enum(["coordinator", "field_officer"]);
+export const userRoleSchema = z.enum(["coordinator", "field_officer", "community"]);
 
 export const userSchema = z.object({
   id: z.string().min(1),

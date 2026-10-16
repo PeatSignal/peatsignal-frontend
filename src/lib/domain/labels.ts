@@ -62,6 +62,7 @@ export const reportResultLabels: Record<FieldReportResult, string> = {
 };
 
 export const roleLabels: Record<UserRole, string> = {
+  community: "Masyarakat",
   coordinator: "Koordinator",
   field_officer: "Petugas lapangan",
 };
