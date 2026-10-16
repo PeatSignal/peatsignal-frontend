@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { chromium } from "playwright";
+import { createRequire } from "node:module";
 import { selectOption } from "../helpers/select.mjs";
 import { signIn } from "./helpers.mjs";
 
 const baseURL = process.env.SHELL_BASE_URL ?? "http://127.0.0.1:3000";
+const require = createRequire(import.meta.url);
+const { version: maplibreVersion } = require("maplibre-gl/package.json");
 
-async function openHotspots(browser, { blockBasemap = false, disableWebgl = false, noFullscreenApi = false, width = 1440, height = 900 } = {}) {
+async function openHotspots(browser, { blockBasemap = false, badWorkerMime = false, disableWebgl = false, noFullscreenApi = false, width = 1440, height = 900 } = {}) {
   const mobile = width < 768;
   const context = await browser.newContext({ viewport: { width, height }, isMobile: mobile, hasTouch: mobile });
   await context.addInitScript(({ disableWebgl, noFullscreenApi }) => {
@@ -21,6 +24,7 @@ async function openHotspots(browser, { blockBasemap = false, disableWebgl = fals
     }
   }, { disableWebgl, noFullscreenApi });
   if (blockBasemap) await context.route(/tiles\.openfreemap\.org/, (route) => route.abort());
+  if (badWorkerMime) await context.route("**/vendor/**/maplibre-gl-worker.js", (route) => route.fulfill({ contentType: "text/plain", body: "// Invalid module worker MIME" }));
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -44,6 +48,36 @@ test("peta: wilayah mengikuti filter, peta dasar gagal, dan tanpa WebGL", { time
     ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } : {}),
   });
   t.after(() => browser.close());
+
+  await t.test("worker dan import pendukung disajikan sebagai JavaScript", async () => {
+    const context = await browser.newContext();
+    try {
+      for (const name of ["worker", "shared"]) {
+        const response = await context.request.get(`${baseURL}/vendor/maplibre-gl-${maplibreVersion}/maplibre-gl-${name}.js`);
+        assert.equal(response.status(), 200);
+        assert.match(response.headers()["content-type"], /^(application|text)\/javascript\b/);
+        const source = await response.text();
+        assert.doesNotMatch(source, /["']\.\/[^"']+\.mjs["']/);
+        if (name === "worker") assert.match(source, /["']\.\/maplibre-gl-shared\.js["']/);
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
+  await t.test("MIME worker salah: tampilkan error dan tombol coba lagi", async () => {
+    const { context, page, map } = await openHotspots(browser, { badWorkerMime: true, blockBasemap: true });
+    try {
+      assert.equal(await waitForStatus(map, ["error"]), "error");
+      await page.getByRole("alert").filter({ hasText: "Peta tidak dapat ditampilkan" }).waitFor();
+      await page.getByRole("button", { name: "Coba lagi" }).waitFor();
+      await context.unroute("**/vendor/**/maplibre-gl-worker.js");
+      await page.getByRole("button", { name: "Coba lagi" }).click();
+      assert.equal(await waitForStatus(map, ["ready"]), "ready");
+    } finally {
+      await context.close();
+    }
+  });
 
   await t.test("peta tampil dan mengikuti filter wilayah", async () => {
     const { context, page, errors, map } = await openHotspots(browser);

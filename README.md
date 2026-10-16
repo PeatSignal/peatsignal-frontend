@@ -50,6 +50,8 @@ Script dev/build menggunakan Webpack, opsi resmi Next.js. Turbopack membutuhkan 
 
 Peta dasar default: OpenFreeMap Positron (tanpa API key). Ganti lewat `NEXT_PUBLIC_MAP_STYLE_URL` bila perlu. `npm run dev`/`npm run build` otomatis menjalankan `scripts/copy-maplibre-worker.mjs`, yang menyalin worker MapLibre ke `public/vendor/` (di-ignore Git). Bila menjalankan `next` langsung tanpa npm script, jalankan `node scripts/copy-maplibre-worker.mjs` lebih dulu.
 
+Worker dan modul pendukungnya disajikan sebagai `.js` agar dikenali sebagai JavaScript oleh server production. Sertakan `public/vendor/` dalam deployment dan pastikan kedua file `maplibre-gl-worker.js` serta `maplibre-gl-shared.js` mengembalikan MIME JavaScript (`application/javascript` atau `text/javascript`), bukan `text/plain`.
+
 ## Sumber data
 
 Default memakai mock repository (data DEMO sintetis, tidak butuh backend). Untuk memakai backend:

@@ -1,7 +1,7 @@
 // Salin worker MapLibre ke public/ agar bisa dimuat sebagai module worker.
 // Webpack tidak dapat meneruskan `import.meta.url` milik maplibre-gl v6, jadi URL worker diset manual
 // (lihat src/components/maps/base-map.tsx). Folder tujuan memuat versi agar cache browser aman.
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
@@ -18,5 +18,10 @@ for (const entry of readdirSync(vendor)) {
   if (entry.startsWith("maplibre-gl-") && entry !== `maplibre-gl-${version}`) rmSync(join(vendor, entry), { recursive: true, force: true });
 }
 mkdirSync(target, { recursive: true });
-for (const file of ["maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) copyFileSync(join(dist, file), join(target, file));
+// Beberapa server production mengirim .mjs sebagai text/plain. Module worker
+// membutuhkan MIME JavaScript, termasuk seluruh import relatifnya.
+for (const name of ["worker", "shared"]) {
+  const source = readFileSync(join(dist, `maplibre-gl-${name}.mjs`), "utf8");
+  writeFileSync(join(target, `maplibre-gl-${name}.js`), source.replaceAll("./maplibre-gl-shared.mjs", "./maplibre-gl-shared.js"));
+}
 console.log(`MapLibre worker ${version} → public/vendor/maplibre-gl-${version}/`);

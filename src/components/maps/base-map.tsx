@@ -82,13 +82,16 @@ export function BaseMap({ label, bounds, onStyleReady, className }: {
       const maplibre = await loadMaplibre();
       if (cancelled) return;
       // Disalin oleh scripts/copy-maplibre-worker.mjs (predev/prebuild).
-      maplibre.setWorkerUrl(`/vendor/maplibre-gl-${maplibre.getVersion()}/maplibre-gl-worker.mjs`);
+      maplibre.setWorkerUrl(`/vendor/maplibre-gl-${maplibre.getVersion()}/maplibre-gl-worker.js`);
       let styleLoaded = false;
+      let fallbackRequested = false;
+      let workerFailed = false;
       const switchToFallbackStyle = () => {
-        if (cancelled || styleLoaded || !map) return;
+        if (cancelled || styleLoaded || fallbackRequested || !map) return;
+        fallbackRequested = true;
         setBasemapFailed(true);
         styleReadyRef.current = false;
-        map.setStyle(FALLBACK_MAP_STYLE);
+        map.setStyle(FALLBACK_MAP_STYLE, { diff: false });
       };
       try {
         map = new maplibre.Map({
@@ -118,7 +121,7 @@ export function BaseMap({ label, bounds, onStyleReady, className }: {
       timeoutId = window.setTimeout(switchToFallbackStyle, STYLE_TIMEOUT_MS);
       // Peta yang sudah dibuang (unmount/coba lagi) tidak boleh lagi mengubah state.
       map.on("style.load", () => {
-        if (cancelled) return;
+        if (cancelled || workerFailed) return;
         styleLoaded = true;
         styleReadyRef.current = true;
         window.clearTimeout(timeoutId);
@@ -127,6 +130,13 @@ export function BaseMap({ label, bounds, onStyleReady, className }: {
       });
       map.on("error", (event) => {
         if (cancelled) return;
+        if (event.error?.message.includes("Worker failed to load")) {
+          workerFailed = true;
+          styleReadyRef.current = false;
+          window.clearTimeout(timeoutId);
+          setStatus("error");
+          return;
+        }
         // Sebelum style termuat: style peta dasar gagal. Sesudahnya: tile peta dasar gagal.
         if (!styleLoaded) switchToFallbackStyle();
         else if ("sourceId" in event && event.sourceId) setBasemapFailed(true);

@@ -76,8 +76,10 @@ export default function LandingHotspotMap() {
       if (!isWebglSupported()) { setStatus("failed"); return; }
       const maplibre = await loadMaplibre();
       if (cancelled) return;
-      maplibre.setWorkerUrl(`/vendor/maplibre-gl-${maplibre.getVersion()}/maplibre-gl-worker.mjs`);
+      maplibre.setWorkerUrl(`/vendor/maplibre-gl-${maplibre.getVersion()}/maplibre-gl-worker.js`);
       let styleLoaded = false;
+      let fallbackRequested = false;
+      let workerFailed = false;
       map = new maplibre.Map({
         container: element,
         style: STYLE_URL,
@@ -90,16 +92,29 @@ export default function LandingHotspotMap() {
       });
       mapRef.current = map;
       markerRef.current = new maplibre.Marker({ element: markerElement, anchor: "center" });
-      const switchToFallback = () => { if (!cancelled && !styleLoaded) map?.setStyle(FALLBACK_MAP_STYLE); };
+      const switchToFallback = () => {
+        if (cancelled || styleLoaded || fallbackRequested || !map) return;
+        fallbackRequested = true;
+        map.setStyle(FALLBACK_MAP_STYLE, { diff: false });
+      };
       timeoutId = window.setTimeout(switchToFallback, STYLE_TIMEOUT_MS);
       map.on("style.load", () => {
-        if (cancelled) return;
+        if (cancelled || workerFailed) return;
         styleLoaded = true;
         window.clearTimeout(timeoutId);
         setStatus("ready");
         setStyleVersion((value) => value + 1);
       });
-      map.on("error", () => { if (!styleLoaded) switchToFallback(); });
+      map.on("error", (event) => {
+        if (cancelled) return;
+        if (event.error?.message.includes("Worker failed to load")) {
+          workerFailed = true;
+          window.clearTimeout(timeoutId);
+          setStatus("failed");
+          return;
+        }
+        if (!styleLoaded) switchToFallback();
+      });
       map.on("webglcontextlost", () => { if (!cancelled) setStatus("failed"); });
       map.once("load", () => element.querySelector(".maplibregl-compact-show")?.classList.remove("maplibregl-compact-show"));
     }
