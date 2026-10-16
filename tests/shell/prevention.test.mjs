@@ -53,6 +53,7 @@ test("GWT lapangan: demo kering/pulih, hujan opsional, ekspor dan provenance man
   await result.getByText("INPUT MANUAL · BELUM DIVERIFIKASI", { exact: true }).waitFor();
   assert.equal(await result.getByText("DEMO · SIMULASI", { exact: true }).count(), 0);
   await page.goto(`${baseURL}/priorities`);
-  await workbench.waitFor();
+  await page.getByRole("heading", { name: "Prioritas dari data pemantauan", exact: true }).waitFor();
+  assert.equal(await workbench.count(), 0, "penilaian lapangan hanya tersedia di GWT forecasting");
   assert.deepEqual(errors, []);
 });
