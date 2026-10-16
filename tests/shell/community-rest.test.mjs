@@ -36,20 +36,30 @@ test("REST + masyarakat: portal tetap lokal dan role operasional tetap menggunak
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${baseURL}/login?next=/tasks`);
-  await page.getByText("Server + masyarakat demo", { exact: true }).waitFor();
+  await page.getByText("Server", { exact: true }).waitFor();
   await page.getByText("Koordinator Backend", { exact: true }).waitFor();
   await chooseAccount(page, "community");
   await page.waitForURL("**/masyarakat");
   await page.getByRole("heading", { name: "Pantau hutan, jaga kehidupan" }).waitFor();
+  assert.doesNotMatch(await page.locator("body").innerText(), /\b(mock|demo|simulasi|sintetis)\b/i);
   assert.equal(requests.filter((request) => request.path.endsWith("/auth/me")).length, 0, "masyarakat tidak login ke backend");
   const afterLogin = requests.length;
-  await page.getByRole("button", { name: "Gunakan pusat wilayah (demo)" }).click();
+  await page.getByRole("button", { name: "Gunakan pusat wilayah" }).click();
   await page.getByLabel("Deskripsi kejadian").fill("Laporan masyarakat lokal ketika aplikasi memakai REST.");
-  await page.getByRole("button", { name: "Simpan laporan simulasi" }).click();
+  await page.getByRole("button", { name: "Simpan laporan" }).click();
   const history = page.getByRole("region", { name: "Laporan saya", exact: true });
   await history.getByText("Laporan masyarakat lokal ketika aplikasi memakai REST.", { exact: true }).waitFor();
+  await page.evaluate(() => {
+    const key = "gambutops:session:v1";
+    const session = JSON.parse(localStorage.getItem(key));
+    session.user.display_name = "Masyarakat Demo";
+    localStorage.setItem(key, JSON.stringify(session));
+  });
   await page.reload();
   await history.getByText("Laporan masyarakat lokal ketika aplikasi memakai REST.", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "Buka profil (Masyarakat)", exact: true }).waitFor();
+  assert.doesNotMatch(await page.locator("body").innerText(), /\b(mock|demo|simulasi|sintetis)\b/i);
+  await page.getByRole("status").filter({ hasText: "Laporan tersimpan" }).waitFor({ state: "hidden" });
   assert.equal(requests.length, afterLogin, "portal dan reload tidak meminta data backend");
 
   for (const role of ["coordinator", "field_officer"]) {

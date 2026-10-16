@@ -1,6 +1,8 @@
 import { LayoutDashboard, Waves, Satellite, ListOrdered, ClipboardCheck, FlaskConical, type LucideIcon } from "lucide-react";
+import type { UserRole } from "@/types";
 
 export interface NavigationItem {
+  roles?: readonly UserRole[];
   href: string;
   label: string;
   title: string;
@@ -48,6 +50,13 @@ export const navigation: readonly NavigationItem[] = [
     capabilities: ["Koordinator membuat tugas dan memilih petugas", "Petugas memulai tugas dan mengirim laporan hasil pemeriksaan", "Setiap perubahan status tercatat: siapa, kapan, dan apa"],
   },
   {
+    href: "/laporan-masyarakat", label: "Laporan masyarakat", title: "Laporan masyarakat",
+    eyebrow: "TINDAK · LAPORAN MASYARAKAT", phase: "community-reports", available: true,
+    roles: ["coordinator"], icon: ClipboardCheck,
+    description: "Tinjau laporan warga dan catat perkembangan penanganannya.",
+    capabilities: ["Melihat laporan masyarakat", "Mencatat penanganan dan hasil tindak lanjut"],
+  },
+  {
     href: "/experiments/ml", label: "GWT Forecasting", title: "Uji prediksi muka air tanah",
     eyebrow: "EKSPERIMEN · PREDIKSI", phase: "F1.6", available: true, experimental: true, icon: FlaskConical,
     description: "Uji coba memperkirakan muka air tanah satu hari ke depan. Hasilnya belum dipakai untuk keputusan.",
@@ -64,5 +73,5 @@ export const communityNavigation: NavigationItem = {
   href: "/masyarakat", label: "Ruang masyarakat", title: "Pantau hutan, jaga kehidupan",
   eyebrow: "MASYARAKAT", phase: "community", available: true, icon: LayoutDashboard,
   description: "Pantau peringatan dan laporkan kejadian di sekitar Anda.",
-  capabilities: ["Memantau indikasi panas dan perubahan tutupan lahan", "Membaca peringatan", "Mengirim laporan simulasi"],
+  capabilities: ["Memantau indikasi panas dan perubahan tutupan lahan", "Membaca peringatan", "Menyimpan laporan temuan"],
 };

@@ -82,7 +82,7 @@ export interface RoleGuide {
 export const roleGuides: readonly RoleGuide[] = [
   { role: "Koordinator", duties: ["Melihat ringkasan dan prioritas", "Membuat tugas dan memilih petugas", "Meninjau laporan dan menentukan hasil akhir"] },
   { role: "Petugas lapangan", duties: ["Melihat tugas yang diberikan", "Menandai tugas sedang dikerjakan", "Mengirim laporan hasil pengecekan"] },
-  { role: "Masyarakat", duties: ["Memantau indikasi panas dan perubahan tutupan lahan", "Membaca peringatan wilayah", "Menyimpan laporan simulasi di browser"] },
+  { role: "Masyarakat", duties: ["Memantau indikasi panas dan perubahan tutupan lahan", "Membaca peringatan wilayah", "Mencatat dan menyimpan laporan temuan"] },
 ];
 
 export const importantNotes: readonly string[] = [

@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { z } from "zod";
 import { userSchema } from "@/lib/schemas";
 import type { User } from "@/types";
+import { COMMUNITY_ACCOUNT } from "./community-account";
 
 // Sesi demo di browser. Bukan keamanan: server tetap memeriksa token setiap perubahan data.
 
@@ -31,6 +32,7 @@ export function readSession(): Session | null {
     try {
       const parsed = sessionSchema.safeParse(JSON.parse(raw));
       cachedSession = parsed.success ? parsed.data : null;
+      if (cachedSession?.user.role === "community") cachedSession = { ...cachedSession, user: COMMUNITY_ACCOUNT };
     } catch {
       cachedSession = null;
     }

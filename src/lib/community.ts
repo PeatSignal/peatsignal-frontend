@@ -1,8 +1,19 @@
 import { z } from "zod";
 import { AREAS, findArea, isInBbox } from "@/lib/domain/areas";
 import type { KeyValueStorage } from "@/lib/mock/storage";
+import type { User } from "@/types";
 
 export const COMMUNITY_STORE_KEY = "gambutops:community-store:v1";
+export const citizenReportStatusSchema = z.enum(["SUBMITTED", "IN_PROGRESS", "RESOLVED", "REJECTED"]);
+export type CitizenReportStatus = z.infer<typeof citizenReportStatusSchema>;
+export const citizenReportStatusLabels: Record<CitizenReportStatus, string> = {
+  SUBMITTED: "Menunggu penanganan", IN_PROGRESS: "Dalam penanganan", RESOLVED: "Selesai", REJECTED: "Ditolak",
+};
+const handlingEntrySchema = z.object({
+  from: citizenReportStatusSchema, to: citizenReportStatusSchema,
+  note: z.string().trim().min(3).max(1000), actor_id: z.string().min(1),
+  actor_name: z.string().min(1), at: z.iso.datetime({ offset: true }),
+});
 export const categoryLabels = { FIRE: "Kebakaran / asap", CLEARING: "Pembukaan lahan", LOGGING: "Penebangan pohon", OTHER: "Lainnya" } as const;
 export const reportInputSchema = z.object({
   category: z.enum(["FIRE", "CLEARING", "LOGGING", "OTHER"]),
@@ -17,7 +28,8 @@ export const reportInputSchema = z.object({
 });
 export const citizenReportSchema = reportInputSchema.safeExtend({
   id: z.string().min(1), submitted_at: z.iso.datetime({ offset: true }),
-  status: z.literal("SUBMITTED"), is_simulation: z.literal(true),
+  status: citizenReportStatusSchema, is_simulation: z.literal(true),
+  handling_history: z.array(handlingEntrySchema).default([]),
 });
 export const communityAlertSchema = z.object({
   id: z.string(), area_id: z.enum(["batanghari", "kubu-raya"]), kind: z.enum(["HOTSPOT", "LAND_CHANGE"]),
@@ -37,9 +49,9 @@ export const COMMUNITY_ALERTS: readonly CommunityAlert[] = AREAS.flatMap((area) 
   const lon = (west + east) / 2;
   const lat = (south + north) / 2;
   return [
-    { id: `${area.id}-heat-1`, area_id: area.id, kind: "HOTSPOT", title: "Indikasi panas perlu diperhatikan", description: "Contoh anomali panas di sekitar kawasan gambut. Titik panas belum tentu kebakaran; diperlukan verifikasi lapangan.", observed_at: "2026-10-12T08:00:00Z", longitude: lon - 0.12, latitude: lat + 0.12, source: "DEMO sintetis · format hotspot satelit", is_simulation: true, extent: null },
-    { id: `${area.id}-heat-2`, area_id: area.id, kind: "HOTSPOT", title: "Indikasi panas lain di wilayah Anda", description: "Contoh titik panas yang belum diperiksa. Jaga jarak aman jika melihat api atau asap.", observed_at: "2026-10-12T06:30:00Z", longitude: lon + 0.16, latitude: lat - 0.12, source: "DEMO sintetis · format hotspot satelit", is_simulation: true, extent: null },
-    { id: `${area.id}-land-1`, area_id: area.id, kind: "LAND_CHANGE", title: "Indikasi perubahan tutupan lahan", description: "Contoh area yang tutupan lahannya berubah. Ini belum mengonfirmasi deforestasi atau alih fungsi lahan dan perlu pemeriksaan lebih lanjut.", observed_at: "2026-10-11T04:00:00Z", longitude: lon + 0.08, latitude: lat + 0.08, source: "DEMO sintetis · perubahan tutupan lahan", is_simulation: true, extent: [lon + 0.02, lat + 0.02, lon + 0.14, lat + 0.14] },
+    { id: `${area.id}-heat-1`, area_id: area.id, kind: "HOTSPOT", title: "Indikasi panas perlu diperhatikan", description: "Indikasi panas di sekitar kawasan gambut. Titik panas belum tentu kebakaran; diperlukan verifikasi lapangan.", observed_at: "2026-10-12T08:00:00Z", longitude: lon - 0.12, latitude: lat + 0.12, source: "DEMO sintetis · format hotspot satelit", is_simulation: true, extent: null },
+    { id: `${area.id}-heat-2`, area_id: area.id, kind: "HOTSPOT", title: "Indikasi panas lain di wilayah Anda", description: "Indikasi titik panas yang belum diperiksa. Jaga jarak aman jika melihat api atau asap.", observed_at: "2026-10-12T06:30:00Z", longitude: lon + 0.16, latitude: lat - 0.12, source: "DEMO sintetis · format hotspot satelit", is_simulation: true, extent: null },
+    { id: `${area.id}-land-1`, area_id: area.id, kind: "LAND_CHANGE", title: "Indikasi perubahan tutupan lahan", description: "Indikasi area yang tutupan lahannya berubah. Ini belum mengonfirmasi deforestasi atau alih fungsi lahan dan perlu pemeriksaan lebih lanjut.", observed_at: "2026-10-11T04:00:00Z", longitude: lon + 0.08, latitude: lat + 0.08, source: "DEMO sintetis · perubahan tutupan lahan", is_simulation: true, extent: [lon + 0.02, lat + 0.02, lon + 0.14, lat + 0.14] },
   ] as CommunityAlert[];
 });
 
@@ -49,6 +61,18 @@ export function validateReport(input: unknown, now = new Date()): ReportInput {
   return result;
 }
 
+export const citizenReportTransitions: Record<CitizenReportStatus, readonly CitizenReportStatus[]> = {
+  SUBMITTED: ["IN_PROGRESS", "REJECTED"], IN_PROGRESS: ["RESOLVED", "REJECTED"], RESOLVED: [], REJECTED: [],
+};
+
+export function handleCitizenReport(report: CitizenReport, status: CitizenReportStatus, note: string, actor: User, now = new Date()): CitizenReport {
+  if (actor.role !== "coordinator") throw new Error("Hanya koordinator yang dapat menangani laporan masyarakat.");
+  if (!citizenReportTransitions[report.status].includes(status)) throw new Error("Status laporan telah berubah atau tindakan tidak tersedia. Periksa kembali laporan.");
+  const entry = handlingEntrySchema.safeParse({ from: report.status, to: status, note, actor_id: actor.id, actor_name: actor.display_name, at: now.toISOString() });
+  if (!entry.success) throw new Error("Isi catatan penanganan sepanjang 3–1000 karakter.");
+  return { ...report, status, handling_history: [...report.handling_history, entry.data] };
+}
+
 export function loadCommunityStore(storage: KeyValueStorage | null, onIssue: (message: string) => void): CommunityStore {
   if (!storage) return emptyCommunityStore();
   try {
@@ -56,7 +80,7 @@ export function loadCommunityStore(storage: KeyValueStorage | null, onIssue: (me
     if (!raw) return emptyCommunityStore();
     return communityStoreSchema.parse(JSON.parse(raw));
   } catch {
-    onIssue("Data demo masyarakat dipulihkan karena penyimpanan sebelumnya tidak dapat dibaca.");
+    onIssue("Riwayat laporan dan peringatan tidak dapat dibaca. Silakan periksa kembali data Anda.");
     const fresh = emptyCommunityStore();
     saveCommunityStore(storage, fresh);
     return fresh;

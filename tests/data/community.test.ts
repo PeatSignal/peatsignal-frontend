@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { COMMUNITY_ALERTS, COMMUNITY_STORE_KEY, communityAlertSchema, citizenReportSchema, emptyCommunityStore, loadCommunityStore, saveCommunityStore, validateReport } from "@/lib/community";
+import { COMMUNITY_ALERTS, COMMUNITY_STORE_KEY, communityAlertSchema, citizenReportSchema, emptyCommunityStore, handleCitizenReport, loadCommunityStore, saveCommunityStore, validateReport } from "@/lib/community";
 import { createMemoryStorage } from "@/lib/mock/storage";
 import { AREAS, findArea, isInBbox } from "@/lib/domain/areas";
 import { createMockRepository } from "@/lib/mock/mock-repository";
@@ -52,4 +52,35 @@ test("akun masyarakat dapat masuk mock tetapi tidak mengubah tugas operasional",
   const task = { status: "IN_PROGRESS" as const, assignee_id: user.id };
   assert.equal(canSubmitReport(task, user).ok, false);
   assert.deepEqual(availableTransitions({ status: "OPEN", assignee_id: null }, user), []);
+});
+
+test("penyimpanan lama tetap terbaca tanpa kehilangan laporan atau status baca", () => {
+  const storage = createMemoryStorage();
+  const legacy = { ...input, id: "legacy-report", submitted_at: input.observed_at, status: "SUBMITTED", is_simulation: true };
+  storage.setItem(COMMUNITY_STORE_KEY, JSON.stringify({ version: 1, reports: [legacy], read_alert_ids: ["batanghari-heat-1"] }));
+  const loaded = loadCommunityStore(storage, () => assert.fail("laporan lama tidak boleh direset"));
+  assert.equal(loaded.reports.length, 1);
+  assert.deepEqual(loaded.reports[0]?.handling_history, []);
+  assert.deepEqual(loaded.read_alert_ids, ["batanghari-heat-1"]);
+});
+
+test("penanganan hanya oleh koordinator, transisi valid, catatan wajib, dan riwayat persisten", () => {
+  const actor = { id: "coordinator-1", role: "coordinator" as const, display_name: "Koordinator" };
+  const report = citizenReportSchema.parse({ ...input, id: "report-1", submitted_at: input.observed_at, status: "SUBMITTED", is_simulation: true });
+  assert.throws(() => handleCitizenReport(report, "IN_PROGRESS", "Cek lokasi", { ...actor, role: "community" }), /Hanya koordinator/);
+  assert.throws(() => handleCitizenReport(report, "IN_PROGRESS", "Cek lokasi", { ...actor, role: "field_officer" }), /Hanya koordinator/);
+  assert.throws(() => handleCitizenReport(report, "IN_PROGRESS", "  ", actor), /catatan/);
+  assert.throws(() => handleCitizenReport(report, "RESOLVED", "Selesai", actor), /Status laporan/);
+  const progress = handleCitizenReport(report, "IN_PROGRESS", "Petugas sedang memeriksa lokasi.", actor, new Date("2026-10-16T01:00:00Z"));
+  const resolved = handleCitizenReport(progress, "RESOLVED", "Lokasi telah diperiksa dan ditangani.", actor, new Date("2026-10-16T02:00:00Z"));
+  assert.equal(report.status, "SUBMITTED", "objek awal tidak dimutasi");
+  assert.equal(resolved.status, "RESOLVED");
+  assert.deepEqual(resolved.handling_history.map((entry) => entry.to), ["IN_PROGRESS", "RESOLVED"]);
+  assert.equal(resolved.handling_history[1]?.actor_name, "Koordinator");
+  assert.throws(() => handleCitizenReport(resolved, "IN_PROGRESS", "Ulangi", actor), /Status laporan/);
+  const rejected = handleCitizenReport(report, "REJECTED", "Laporan duplikat dari lokasi yang sama.", actor);
+  assert.equal(rejected.status, "REJECTED");
+  const storage = createMemoryStorage();
+  saveCommunityStore(storage, { ...emptyCommunityStore(), reports: [resolved] });
+  assert.deepEqual(loadCommunityStore(storage, () => assert.fail()).reports[0], resolved);
 });

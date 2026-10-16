@@ -56,7 +56,7 @@ Worker dan modul pendukungnya disajikan sebagai `.js` agar dikenali sebagai Java
 
 ### Portal masyarakat (mock)
 
-Pilih **Masyarakat Demo** di halaman login untuk membuka `/masyarakat`, baik saat
+Pilih **Masyarakat** di halaman login untuk membuka `/masyarakat`, baik saat
 aplikasi memakai backend REST maupun mode mock.
 Portal khusus ini menyediakan pilihan Batanghari/Kubu Raya, peta titik panas dan indikasi
 perubahan tutupan lahan sintetis, peringatan dengan status dibaca, formulir lokasi/waktu
@@ -65,8 +65,11 @@ Peta dasar tetap memerlukan koneksi internet; daftar peringatan dan pilihan pusa
 tetap dapat dipakai jika peta tidak tersedia.
 
 Laporan dan status baca disimpan di localStorage (`gambutops:community-store:v1`), terpisah
-dari tugas/laporan petugas. Semua laporan berstatus **Terkirim · SIMULASI**, tidak dikirim
-ke layanan darurat atau Koordinator. Data hanya bertahan pada browser yang sama.
+dari tugas/laporan petugas. Laporan baru berstatus **Menunggu penanganan** dan tersedia pada menu **Laporan masyarakat**
+untuk Koordinator. Koordinator dapat memulai penanganan, menyelesaikan, atau menolak laporan
+dengan catatan. Riwayat status, catatan, nama penangan, dan waktu perubahan dapat dilihat
+kembali oleh masyarakat. Laporan tidak dikirim ke layanan darurat. Data dibagikan antar-akun
+pada browser/origin yang sama dan tersinkron antartab; tidak tersedia di perangkat lain.
 Akun masyarakat masuk secara lokal tanpa autentikasi backend; tidak ada endpoint atau token
 backend tambahan. Akun ini tetap dapat dipakai ketika backend tidak tersedia.
 Role Masyarakat diarahkan ke portal khusus. Modul Koordinator/Petugas tetap mengikuti
@@ -76,6 +79,7 @@ mencoba portal masyarakat.
 
 Tes portal mock: `node --test tests/shell/community.test.mjs` dengan server build mock aktif.
 Tes isolasi portal pada build REST: `COMMUNITY_E2E_REST=1 node --test tests/shell/community-rest.test.mjs`.
+Tes alur penanganan Koordinator: `COMMUNITY_E2E_REST=1 node --test tests/shell/community-handling.test.mjs`.
 Tes data: `npm run test:data`.
 
 Default memakai mock repository (data DEMO sintetis, tidak butuh backend). Untuk memakai backend:

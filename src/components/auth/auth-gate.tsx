@@ -20,7 +20,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     router.replace(`/login?next=${encodeURIComponent(next)}`);
   }, [pathname, router, session]);
 
-  const wrongRole = !!session && (session.user.role === "community" ? pathname !== "/masyarakat" : pathname === "/masyarakat");
+  const wrongRole = !!session && (session.user.role === "community" ? pathname !== "/masyarakat" : pathname === "/masyarakat" || (pathname === "/laporan-masyarakat" && session.user.role !== "coordinator"));
   useEffect(() => {
     if (wrongRole && session) router.replace(session.user.role === "community" ? "/masyarakat" : "/dashboard");
   }, [wrongRole, session, router]);

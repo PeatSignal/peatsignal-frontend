@@ -69,7 +69,7 @@ function LoginForm() {
       <div className="mt-8 flex items-center justify-between gap-3">
         <Brand href="/" label="PeatSignal — beranda" />
         <span className={cn("rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", demo ? "border-[#FEDF89] bg-[#FFFAEB] text-[#B54708]" : "border-border bg-muted text-muted-foreground")}>
-          {demo ? "Akun demo" : "Server + masyarakat demo"}
+          {selected?.role === "community" ? "Masyarakat" : demo ? "Akun demo" : "Server"}
         </span>
       </div>
 
@@ -101,7 +101,7 @@ function LoginForm() {
                     <Icon className="size-5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold">{user.display_name}{user.role === "community" && <span className="ml-2 text-[10px] text-amber-800">DEMO LOKAL</span>}</span>
+                    <span className="block text-sm font-semibold">{user.display_name}</span>
                     <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{roleLabels[user.role]} · {ROLE_DUTIES[user.role].slice(0, 2).join(", ").toLowerCase()}</span>
                   </span>
                   <input type="radio" name="akun" value={user.id} checked={checked} onChange={() => setSelectedId(user.id)} className="size-4 shrink-0 accent-[var(--color-primary)]" />
@@ -123,7 +123,7 @@ function LoginForm() {
       <p id={`${id}-note`} className="mt-6 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
         <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
         {selected?.role === "community"
-          ? "Tanpa kata sandi. Portal masyarakat memakai data contoh dan laporan tersimpan di browser ini."
+          ? "Pantau wilayah dan kelola laporan Anda melalui portal masyarakat."
           : demo
           ? "Tanpa kata sandi. Data contoh berlabel DEMO dan tugas uji coba tersimpan di browser ini."
           : "Tanpa kata sandi. Identitas akun diverifikasi oleh server PeatSignal sebelum Anda masuk."}

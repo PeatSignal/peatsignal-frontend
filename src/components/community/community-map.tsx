@@ -21,7 +21,7 @@ export function CommunityMap({ areaId, alerts, reports, selectedId, location, pi
       { type: "Feature", properties: { kind: "boundary" }, geometry: { type: "Polygon", coordinates: bboxPolygon(area.bbox) } },
       ...alerts.filter((alert) => alert.extent).map((alert): GeoJSON.Feature => ({ type: "Feature", properties: { id: alert.id, kind: "land" }, geometry: { type: "Polygon", coordinates: bboxPolygon(alert.extent!) } })),
       ...alerts.map((alert): GeoJSON.Feature => ({ type: "Feature", properties: { id: alert.id, kind: alert.kind === "HOTSPOT" ? "heat" : "land", selected: alert.id === selectedId }, geometry: { type: "Point", coordinates: [alert.longitude, alert.latitude] } })),
-      ...reports.map((report): GeoJSON.Feature => ({ type: "Feature", properties: { id: report.id, kind: "report" }, geometry: { type: "Point", coordinates: [report.longitude, report.latitude] } })),
+      ...reports.map((report): GeoJSON.Feature => ({ type: "Feature", properties: { id: report.id, kind: "report", selected: report.id === selectedId }, geometry: { type: "Point", coordinates: [report.longitude, report.latitude] } })),
       ...(location ? [{ type: "Feature", properties: { kind: "location" }, geometry: { type: "Point", coordinates: location } } as GeoJSON.Feature] : []),
     ] };
     if (!map.getSource("community")) {

@@ -39,7 +39,7 @@ test("masyarakat: portal khusus, peta, peringatan, laporan persisten, dan akses 
   const map = page.locator("main [data-map-status]");
   await page.waitForFunction(() => document.querySelector("main [data-map-status]")?.getAttribute("data-map-status") === "ready");
   await page.getByLabel("Deskripsi kejadian").fill("Asap terlihat di lahan contoh dekat kebun warga.");
-  await page.getByRole("button", { name: "Simpan laporan simulasi" }).click();
+  await page.getByRole("button", { name: "Simpan laporan" }).click();
   await page.getByRole("alert").filter({ hasText: "Pilih lokasi kejadian" }).waitFor();
   await page.getByRole("button", { name: "Pilih lokasi laporan", exact: true }).click();
   const canvas = map.locator("canvas");
@@ -47,7 +47,7 @@ test("masyarakat: portal khusus, peta, peringatan, laporan persisten, dan akses 
   assert.ok(canvasBounds);
   await canvas.click({ position: { x: canvasBounds.width / 2, y: canvasBounds.height / 2 } });
   await page.getByRole("button", { name: "Pilih lokasi laporan", exact: true }).waitFor();
-  await page.getByRole("button", { name: "Simpan laporan simulasi" }).click();
+  await page.getByRole("button", { name: "Simpan laporan" }).click();
   const history = page.getByRole("region", { name: "Laporan saya", exact: true });
   await history.getByText("Asap terlihat di lahan contoh dekat kebun warga.", { exact: true }).waitFor();
   await page.reload();
@@ -83,13 +83,13 @@ test("masyarakat: mobile 320px, fallback WebGL, lokasi alternatif, dan waktu di 
   const drawer = page.getByRole("dialog", { name: "Navigasi PeatSignal" });
   await drawer.getByRole("link", { name: "Ruang masyarakat", exact: true }).click();
   await drawer.waitFor({ state: "hidden" });
-  await page.getByRole("button", { name: "Gunakan pusat wilayah (demo)" }).click();
+  await page.getByRole("button", { name: "Gunakan pusat wilayah" }).click();
   await page.getByLabel("Deskripsi kejadian").fill("Contoh laporan pembukaan lahan dari warga.");
   await page.getByLabel("Waktu kejadian").fill("2099-01-01T10:00");
-  await page.getByRole("button", { name: "Simpan laporan simulasi" }).click();
+  await page.getByRole("button", { name: "Simpan laporan" }).click();
   await page.getByRole("alert").filter({ hasText: "Waktu kejadian tidak boleh di masa depan" }).waitFor();
   await page.getByLabel("Waktu kejadian").fill("2026-10-12T10:00");
-  await page.getByRole("button", { name: "Simpan laporan simulasi" }).click();
+  await page.getByRole("button", { name: "Simpan laporan" }).click();
   await page.getByRole("region", { name: "Laporan saya" }).getByText("Contoh laporan pembukaan lahan dari warga.", { exact: true }).waitFor();
   await page.screenshot({ path: "/tmp/peatsignal-community-mobile.png", fullPage: true });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
